@@ -1,6 +1,12 @@
 import React, { useContext } from 'react'
-import { List, Avatar, Popconfirm, Modal, message, Button } from 'antd'
-import { RightCircleTwoTone, DeleteFilled, EditFilled } from '@ant-design/icons'
+import { List, Avatar, Popconfirm, Modal, message } from 'antd'
+import {
+   RightCircleTwoTone,
+   CheckOutlined,
+   CloseOutlined,
+   EditOutlined,
+   DeleteOutlined,
+} from '@ant-design/icons'
 import { format } from 'date-fns'
 import { contextDispach } from './App'
 import FormSpace from './FormSpace'
@@ -30,19 +36,32 @@ class HabitListItem extends React.Component {
          <>
             <List.Item
                actions={[
-                  <Button
-                     type="ghost"
-                     htmlType="button"
-                     onClick={() =>
-                        dispach({
-                           type: 'toggleToday',
-                           payload: { id: idName },
-                        })
-                     }
-                  >
-                     {doneState ? 'Done' : 'Yet to do'}
-                  </Button>,
-                  <EditFilled
+                  doneState ? (
+                     <CheckOutlined
+                        style={{ fontSize: 'large' }}
+                        title="Current status: Done"
+                        onClick={() => {
+                           dispach({
+                              type: 'toggleToday',
+                              payload: { id: idName },
+                           })
+                           message.info('Marked as Yet to do', 1)
+                        }}
+                     />
+                  ) : (
+                     <CloseOutlined
+                        style={{ fontSize: 'large' }}
+                        title="Current status: Yet to do"
+                        onClick={() => {
+                           dispach({
+                              type: 'toggleToday',
+                              payload: { id: idName },
+                           })
+                           message.success('Marked as Done', 1)
+                        }}
+                     />
+                  ),
+                  <EditOutlined
                      onClick={() => setFormVisibility(true)}
                      style={{ fontSize: 'large' }}
                   />,
@@ -55,7 +74,7 @@ class HabitListItem extends React.Component {
                         })
                      }
                   >
-                     <DeleteFilled style={{ fontSize: 'large' }} />
+                     <DeleteOutlined style={{ fontSize: 'large' }} />
                   </Popconfirm>,
                ]}
             >
@@ -70,7 +89,7 @@ class HabitListItem extends React.Component {
                   }
                   description={description}
                />
-               <>Score: {Math.round(score * 100)}</>
+               <div>Score: {Math.round(score * 100)}</div>
             </List.Item>
 
             <Modal

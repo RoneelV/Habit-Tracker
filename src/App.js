@@ -2,7 +2,7 @@ import React, { useState, createContext, useReducer, useEffect } from 'react'
 import { Modal, Space, Button, Typography, message } from 'antd'
 import HabitList from './habitList'
 import FormSpace from './FormSpace'
-import reducer from './reducer'
+import reducer, { initHelper } from './reducer'
 import './App.less'
 
 export const contextDispach = createContext(() => {})
@@ -11,7 +11,9 @@ const App = () => {
    const [formVisibility, setFormVisibility] = useState(false)
    const [habitsAppState, dispach] = useReducer(
       reducer,
-      JSON.parse(localStorage.getItem('habitsAppState') || '[]') || []
+      JSON.parse(localStorage.getItem('habitsAppState') || '[]').map((el) =>
+         initHelper(el)
+      ) || []
    )
    useEffect(() => {
       localStorage.setItem('habitsAppState', JSON.stringify(habitsAppState))

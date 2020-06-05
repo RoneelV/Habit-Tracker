@@ -1,20 +1,22 @@
 import { format, eachDayOfInterval, parse } from 'date-fns'
 
 let idCounter = 0
+const multiplier = 1 - Math.pow(0.2, 1 / 21)
+const antimultiplier = Math.pow(0.2, -1 / 21)
 
 const actions = new Map([
    [
       'addHabit',
       (state, payload) => {
-         const today = format(new Date(), 'yyyyMMdd')
+         const todate = format(new Date(), 'yyyyMMdd')
 
          return [
             ...state,
             {
                ...payload,
                id: `${idCounter++}`,
-               startDate: today,
-               CheckList: { [today]: 0 },
+               startDate: todate,
+               CheckList: { [todate]: 0 },
                score: 0,
             },
          ]
@@ -44,45 +46,20 @@ const actions = new Map([
       'toggleToday',
       (state, payload) => {
          const todate = format(new Date(), 'yyyyMMdd')
-         const daysBetween = (start) =>
-            eachDayOfInterval({
-               start: parse(start, 'yyyyMMdd', new Date()),
-               end: new Date(),
-            }).map((day) => format(day, 'yyyyMMdd'))
-
-         const theHabit = state.find((el) => el.id === payload.id)
-         const checks = daysBetween(theHabit.startDate).reduce(
-            (acc, day) => ({
-               CheckList: {
-                  ...acc.CheckList,
-                  [day]:
-                     day === todate
-                        ? +!acc.CheckList[todate]
-                        : acc.CheckList[day] || 0,
-               },
-               array: [
-                  day === todate
-                     ? +!acc.CheckList[todate]
-                     : acc.CheckList[day] || 0,
-                  ...acc.array,
-               ],
-            }),
-            { CheckList: theHabit.CheckList, array: [] }
-         )
-
-         // 80% on 21th consecutive day
-         const multiplier = 1 - Math.pow(0.2, 1 / 21)
-         const score = checks.array.reduce(
-            (acc, val) => multiplier * val + acc * (1 - multiplier),
-            0
-         )
 
          return state.map((el) =>
             el.id === payload.id
                ? {
                     ...el,
-                    CheckList: checks.CheckList,
-                    score: score,
+                    CheckList: {
+                       ...el.CheckList,
+                       [todate]: +!el.CheckList[todate],
+                    },
+                    score:
+                       el.CheckList[todate] === 1
+                          ? (el.score - multiplier) * antimultiplier
+                          : multiplier * !el.CheckList[todate] +
+                            (1 - multiplier) * el.score,
                  }
                : el
          )
@@ -95,3 +72,29 @@ const reducer = (state, action) => {
 }
 
 export default reducer
+
+export const initHelper = (habit) => {
+   const daysBetween = eachDayOfInterval({
+      start: parse(habit.startDate, 'yyyyMMdd', new Date()),
+      end: new Date(),
+   }).map((day) => format(day, 'yyyyMMdd'))
+
+   const checks = daysBetween.reduce(
+      (acc, day) => ({
+         checks: { ...acc.checks, [day]: +acc.checks[day] || 0 },
+         values: [...acc.values, +acc.checks[day] || 0],
+      }),
+      { checks: habit.CheckList, values: [] }
+   )
+
+   const score = checks.values.reduce(
+      (acc, val) => multiplier * val + acc * (1 - multiplier),
+      0
+   )
+
+   return {
+      ...habit,
+      CheckList: checks.checks,
+      score: score,
+   }
+}
