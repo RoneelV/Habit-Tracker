@@ -2,7 +2,6 @@ import { format, eachDayOfInterval, parse } from 'date-fns'
 
 let idCounter = 0
 const multiplier = 1 - Math.pow(0.2, 1 / 21)
-const antimultiplier = Math.pow(0.2, -1 / 21)
 
 const actions = new Map([
    [
@@ -57,7 +56,7 @@ const actions = new Map([
                     },
                     score:
                        el.CheckList[todate] === 1
-                          ? (el.score - multiplier) * antimultiplier
+                          ? el.score - multiplier
                           : multiplier * !el.CheckList[todate] +
                             (1 - multiplier) * el.score,
                  }

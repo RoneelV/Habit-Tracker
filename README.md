@@ -12,7 +12,7 @@ An app that helps you get and maintain good habits, also helping your time manag
 
 -  Desktop only for now. Mobile and PWA support coming soon.
 
--  Custom scoring system. you'll get score of 80 when you complete task for 21 consecutive days.
+-  Custom scoring system. You'll get score of 80 when you complete task for 21 consecutive days, 96 after 42 days and so on.
 
 -  No limits. Seriously!
 
